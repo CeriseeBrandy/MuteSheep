@@ -1,0 +1,6 @@
+customtkinter
+pynput
+pycaw
+comtypes
+pillow
+pystray
