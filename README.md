@@ -11,6 +11,10 @@ Une application Windows simple et élégante pour contrôler votre microphone d'
 - 🚀 **Auto-démarrage Windows** : Lancez automatiquement au démarrage de Windows
 - 🎨 **Interface moderne** : Design sombre et épuré avec CustomTkinter
 
+## 📸 Aperçu
+
+![Mute Sheep Screenshot](screenshots/screenshot.png)
+
 ## 🔧 Installation
 
 ### Utiliser l'exécutable
