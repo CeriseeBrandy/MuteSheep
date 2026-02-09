@@ -8,7 +8,7 @@ import winsound
 from PIL import Image
 import pystray
 
-# Bibliothèque pour le contrôle sonore système
+
 from ctypes import cast, POINTER
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
@@ -22,30 +22,30 @@ class MuteSheep(ctk.CTk):
         self.geometry("500x650")
         self.configure(fg_color="#333333")
         
-        # Définir l'icône si elle existe
+        
         self.set_icon()
 
         self.shortcut = "f8"
         self.is_muted = False
         self.waiting_for_key = False
         
-        # Initialiser le volume du microphone
+        
         self.volume = None
         self.init_microphone()
         
-        # System tray
+        
         self.tray_icon = None
         self.is_minimized_to_tray = False
 
         self.setup_ui()
         
-        # Lancement de l'écoute clavier
+        
         self.listener = keyboard.Listener(on_press=self.on_press)
         self.listener.start()
 
     def set_icon(self):
         """Définit l'icône de l'application si MuteSheep.ico existe"""
-        # Chercher l'icône dans plusieurs emplacements possibles
+        
         possible_paths = [
             os.path.join(os.path.dirname(os.path.abspath(__file__)), "MuteSheep.ico"),
             os.path.join(os.path.dirname(sys.executable), "MuteSheep.ico"),
@@ -53,9 +53,9 @@ class MuteSheep(ctk.CTk):
             "MuteSheep.ico"
         ]
         
-        # Si l'application est packagée avec PyInstaller
+        
         if getattr(sys, 'frozen', False):
-            # Chemin pour les applications PyInstaller
+            
             base_path = sys._MEIPASS
             possible_paths.insert(0, os.path.join(base_path, "MuteSheep.ico"))
         
@@ -63,7 +63,7 @@ class MuteSheep(ctk.CTk):
             if os.path.exists(icon_path):
                 try:
                     self.iconbitmap(icon_path)
-                    # Pour Windows : définir aussi l'icône de la barre des tâches
+                    
                     self.iconbitmap(default=icon_path)
                     print(f"Icône chargée : {icon_path}")
                     return
@@ -107,7 +107,7 @@ class MuteSheep(ctk.CTk):
         self.mute_val = ctk.CTkLabel(self.status_frame, text="  MUET", text_color="#555555", font=("Arial", 15, "bold"))
         self.mute_val.pack(side="left")
         
-        # Ajout du bouton auto-démarrage
+        
         ctk.CTkFrame(self, height=1, width=420, fg_color="#555555").pack(pady=20)
         
         self.autostart_btn = ctk.CTkButton(self, text="⚙ Auto-démarrage Windows", 
@@ -119,14 +119,14 @@ class MuteSheep(ctk.CTk):
         self.autostart_status = ctk.CTkLabel(self, text="", font=("Arial", 12), text_color="#AAAAAA")
         self.autostart_status.pack()
         
-        # Bouton pour minimiser dans la barre des tâches
+        
         self.minimize_btn = ctk.CTkButton(self, text="🗕 Minimiser dans la barre des tâches", 
                                          command=self.minimize_to_tray,
                                          fg_color="#34495E", hover_color="#2C3E50", 
                                          font=("Arial", 14), height=45, width=300)
         self.minimize_btn.pack(pady=10)
         
-        # Vérifier le statut de l'auto-démarrage
+        
         self.update_autostart_status()
 
     def play_sound(self, sound_type):
@@ -134,22 +134,22 @@ class MuteSheep(ctk.CTk):
         def _play():
             try:
                 if sound_type == "mute":
-                    # Son pour le mute (son d'erreur ou critique)
+                    
                     winsound.MessageBeep(winsound.MB_ICONHAND)
                 else:
-                    # Son pour l'activation (son par défaut ou astérisque)
+                    
                     winsound.MessageBeep(winsound.MB_ICONASTERISK)
             except Exception as e:
                 print(f"Erreur lors de la lecture du son : {e}")
         
-        # Jouer le son dans un thread séparé pour ne pas bloquer l'UI
+        
         threading.Thread(target=_play, daemon=True).start()
 
     def toggle_mute(self):
         """Bascule l'état muet du microphone"""
         self.is_muted = not self.is_muted
         
-        # Mise à jour de l'interface
+        
         if self.is_muted:
             self.status_val.configure(text_color="#555555")
             self.mute_val.configure(text_color="#E74C3C")
@@ -157,10 +157,10 @@ class MuteSheep(ctk.CTk):
             self.status_val.configure(text_color="#2ECC71")
             self.mute_val.configure(text_color="#555555")
         
-        # Jouer le son approprié
+        
         self.play_sound("mute" if self.is_muted else "unmute")
         
-        # Exécution de la commande système
+        
         threading.Thread(target=self.apply_mute_windows, daemon=True).start()
 
     def apply_mute_windows(self):
@@ -170,14 +170,14 @@ class MuteSheep(ctk.CTk):
                 self.init_microphone()
             
             if self.volume is not None:
-                # Application du mute
+                
                 self.volume.SetMute(1 if self.is_muted else 0, None)
                 print(f"Action Windows : {'MUET' if self.is_muted else 'ACTIF'}")
             else:
                 print("Erreur : Impossible d'accéder au microphone")
         except Exception as e:
             print(f"Erreur lors du mute : {e}")
-            # Réinitialiser la connexion au microphone
+            
             self.volume = None
             self.init_microphone()
 
@@ -216,21 +216,21 @@ class MuteSheep(ctk.CTk):
         app_name = "MuteSheep"
         
         try:
-            # Ouvrir la clé de registre
+            
             key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_ALL_ACCESS)
             
-            # Vérifier si déjà configuré
+            
             try:
                 winreg.QueryValueEx(key, app_name)
-                # Si présent, le supprimer
+                
                 winreg.DeleteValue(key, app_name)
                 winreg.CloseKey(key)
                 print("Auto-démarrage désactivé")
             except FileNotFoundError:
-                # Si absent, l'ajouter
+                
                 script_path = os.path.abspath(sys.argv[0])
                 
-                # Si c'est un script .py, utiliser pythonw.exe pour éviter la console
+                
                 if script_path.endswith('.py'):
                     python_path = sys.executable.replace('python.exe', 'pythonw.exe')
                     if not os.path.exists(python_path):
@@ -243,7 +243,7 @@ class MuteSheep(ctk.CTk):
                 winreg.CloseKey(key)
                 print("Auto-démarrage activé")
             
-            # Mettre à jour le statut
+            
             self.update_autostart_status()
             
         except Exception as e:
@@ -277,7 +277,7 @@ class MuteSheep(ctk.CTk):
     
     def create_tray_icon(self):
         """Crée l'icône dans la barre des tâches"""
-        # Créer une image pour l'icône (mouton emoji en image)
+        
         icon_path = self.find_icon_path()
         
         if icon_path and os.path.exists(icon_path):
@@ -288,7 +288,7 @@ class MuteSheep(ctk.CTk):
         else:
             image = self.create_default_icon()
         
-        # Menu du system tray
+        
         menu = pystray.Menu(
             pystray.MenuItem("🐑 Mute Sheep", self.show_window, default=True),
             pystray.MenuItem(f"Touche : {self.shortcut.upper()}", lambda: None, enabled=False),
@@ -301,7 +301,7 @@ class MuteSheep(ctk.CTk):
     
     def create_default_icon(self):
         """Crée une icône par défaut si aucune n'est trouvée"""
-        # Créer une image simple 64x64 avec un fond
+        
         width = 64
         height = 64
         color1 = (52, 152, 219)  # Bleu
@@ -310,7 +310,7 @@ class MuteSheep(ctk.CTk):
         image = Image.new('RGB', (width, height), color1)
         pixels = image.load()
         
-        # Dessiner un cercle simple
+        
         for x in range(width):
             for y in range(height):
                 dist = ((x - width/2)**2 + (y - height/2)**2)**0.5
